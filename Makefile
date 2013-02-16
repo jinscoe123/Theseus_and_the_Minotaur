@@ -37,4 +37,4 @@ $(OBJS): $(HDRS) Makefile
 
 # Target to clean up after compiling the default target
 clean:
-	rm -f core *.o
+	rm -f core ./src/*.o
