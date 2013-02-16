@@ -1,0 +1,8 @@
+./Levels/level1.txt
+./Levels/level2.txt
+./Levels/level3.txt
+./Levels/level4.txt
+./Levels/level5.txt
+./Levels/level6.txt
+./Levels/level7.txt
+./Levels/level8.txt

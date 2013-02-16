@@ -1,0 +1,92 @@
+---------------------------------------------- README --------------------------------------------------------
+
+                             ***** Theseus and the Minotaur Game *****
+
+	This game was based on the iPhone app - "Theseus and the Minotaur". I decided to
+implement my own version of the game for the Final Project of the Harvard CS50x course offered
+online at http://www.edx.com/. It took me around a couple weeks working on the code (off and on)
+to complete the project. I hope you like the game and I hope I'm not violating any copyright
+issues (all code is my own, so I don't think so). Feel free to do whatever you want with the code.
+I have no patents or copyright stuff, so it's all gucci with me.
+
+This program has been tested and works on:
+	- Mac OS X 10.8.2	(It probably works on earlier versions also)
+	- Fedora Linux		(I don't know which version --> CS50 Appliance definitely works)
+
+** I didn't test the code on my PC, which is running Windows 7 because it doesn't have the
+** unistd library (unistd.h header file) or the gcc compiler - which is the compiler my Makefile
+** is written for. If you're using an operating system that has most of the same libraries as a
+** linux or unix-like operating system, then you might be able to compile/run the program. Since
+** the Makefile is written for linux/unix operating systems 'make clean' probably won't work for Windows.
+
+Requirements:
+	- ncurses library (ncurses.h header file)
+	- A terminal that has at least the eight basic colors, and that can display special characters
+	  (i.e xterm, xterm-256color, xterm-new, rxvt, [linux -- see Note])
+
+Note - 'linux' terminal emulator displays the game graphics fine, but doesn't display the
+       special characters for outlining the menus. It instead displays question marks ('?').
+       This does not interfere with the functionality of the program.
+
+Font Type:
+
+	I've noticed that the graphics for the program are better in some fonts than others.
+My terminal's text font was set to Monaco while I was writing the code and experimenting
+with the graphics, so I personally think that's the better font to use. Andale Mono
+also looks good. It's pretty much the fancier fonts that mess up the graphics, but you're
+free to do whatever you want.
+
+How to Compile and Run:
+
+	// ----- If you have the GNU GCC Compiler installed. ----- //
+
+	1. Type 'make' at your command line.
+	2. [optional] Type 'make clean' to get rid of any object files that were created
+	   as a result of compiling the code.
+	3. Type './theseus' to run the program.
+
+
+	// ---------- If you have a different compiler installed. ----------- //
+	// ----- Sorry if the instructions below are a bit ambiguous... ----- //
+
+	1. Compile and assemble the source files without linking yet to other libraries
+	   (for this you'll probably have to set some compiler flag). For example, in GCC
+	   the flag you'd use would be -c, so the line of code you'd type would look like
+	   this:
+
+		gcc -c -std=c99 loader.c board.c movement.c game.c welcome.c
+
+	2. Compile the main.c file along with all the newly created object files and link to the
+	   ncurses library. I don't know the command(s) you would use for other compilers, but this
+	   is how you would do it using GCC:
+
+		gcc -std=c99 loader.o board.o movement.o game.o welcome.o main.c -lncurses -o theseus
+
+---------------------------------------------------------------------------------------------------------------
+
+Notes for Developers:
+
+	If you would like to modify my code or use it, I have a couple things to point out
+	to hopefully save you some time debugging.
+
+	I'd say most of my code is very thoroughly commented (maybe even a little extreme), so
+	that should help out I hope.
+
+	1. I ran my code through valgrind to check for memory leaks, and all the code that I have
+	   personally written is free of any leaks. The ncurses library will leak memory in programs
+	   where it is used because it needs to be able to jump back into curses mode on any call to
+	   refresh() or doupdate() after the endwin() function has been called. This memory is leaked
+	   from the initscr() function as well as a few other minor functions from the ncurses library.
+
+	2. Some aspects of my program are dependent on other parts, such as other variables, contants,
+	   functions, etc. One example of this would be the size of the ASCII character images for the
+	   Theseus and Minotaur players might require other constants to change if they were modified.
+
+		Example:
+			i.   Theseus and Minotaur ASCII character images are increased in height and
+			     width by a developer.
+			ii.  Now the size of the colored squares, representing positions on the game
+			     board will need to change to display graphics correctly.
+			iii. And the size of the 'eraser' constant array (see board.c file) would need
+			     to increase in size to fully overwrite the ASCII character images for the
+			     Theseus and Minotaur character-images.
