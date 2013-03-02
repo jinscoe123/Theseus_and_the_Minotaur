@@ -17,13 +17,13 @@ CFLAGS = -std=c99 -O3
 EXE = theseus
 
 # List of header files
-HDRS = ./src/loader.h ./src/board.h ./src/movement.h ./src/game.h ./src/welcome.h
+HDRS = ./src/loader.h ./src/scans.h ./src/board.h ./src/movement.h ./src/game.h ./src/welcome.h
 
 # Libraries to link to when compiling
 LIBS = -lncurses
 
 # List of source files
-SRCS = ./src/loader.c ./src/board.c ./src/movement.c ./src/game.c ./src/welcome.c ./src/main.c
+SRCS = ./src/loader.c ./src/scans.c ./src/board.c ./src/movement.c ./src/game.c ./src/welcome.c ./src/main.c
 
 # An automatically generated list of object files
 OBJS = $(SRCS:.c=.o)

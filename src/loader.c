@@ -1,5 +1,6 @@
 #include "loader.h"
 #include "movement.h"
+#include "scans.h"
 
 /**
  * Take in a string of text referencing an external 'level' file for the game. Then
@@ -19,6 +20,7 @@
  *	4 - Invalid starting position for Theseus was scanned.
  *	5 - Invalid starting position for Minotaur was scanned.
  *	6 - Invalid relative position of a "wall" was scanned.
+ *	7 - Unknown function exited with return value of 1.
  */
 int read_level_file(const char *file_path, struct stats *board) {
 
@@ -26,125 +28,34 @@ int read_level_file(const char *file_path, struct stats *board) {
 	FILE *level_file = fopen(file_path, "r");
 	if (level_file == NULL) return 1;
 
-	// Scan the dimension of the board from the file into memory
-	if (fscanf(level_file, " %d %d ", &board->size.num_rows, &board->size.num_cols) != 2) {
-		fclose(level_file);
-		return 2;
-	}
-	if (board->size.num_rows < MIN_BOARD_Y || board->size.num_rows > MAX_BOARD_Y
-	    || board->size.num_cols < MIN_BOARD_X || board->size.num_cols > MAX_BOARD_X) {
-		fclose(level_file);
-		return 2;
-	}
+	// Create an array of pointers to the scanner functions
+	int (*scanners[])(FILE *, struct stats *) = {scan_dimensions, scan_exit, scan_theseus, scan_minotaur, scan_walls};
 
-	// Scan the relative position of the exit square form the file into memory
-	if (fscanf(level_file, " %d %d %d ", &board->exit.relation.row, &board->exit.relation.col, &board->exit.location) != 3) {
-		fclose(level_file);
-		return 3;
-	}
-	if (board->exit.relation.row < 0 || board->exit.relation.row >= board->size.num_rows
-	    || board->exit.relation.col < 0 || board->exit.relation.col >= board->size.num_cols) {
-		fclose(level_file);
-		return 3;
-	}
-	
-	switch (board->exit.location) {
-		case M_LEFT:
-			if (board->exit.relation.col != 0) {
-				fclose(level_file);
-				return 3;
+	// Perform each scanner function in order
+	for(int i = 0; i < NUM_SCANS; i++) {
+		if (scanners[i](level_file, board) == 1) {
+			
+			// Return the correct error code based on failed scanner function
+			switch (i) {
+				case DIMENSIONS:
+					return 2;
+
+				case EXIT:
+					return 3;
+
+				case THESEUS:
+					return 4;
+
+				case MINOTAUR:
+					return 5;
+
+				case WALLS:
+					return 6;
+
+				default:
+					return 7;
 			}
-			break;
-
-		case M_RIGHT:
-			if (board->exit.relation.col != (board->size.num_cols - 1)) {
-				fclose(level_file);
-				return 3;
-			}
-			break;
-
-		case M_UP:
-			if (board->exit.relation.row != 0) {
-				fclose(level_file);
-				return 3;
-			}
-			break;
-
-		case M_DOWN:
-			if (board->exit.relation.row != (board->size.num_rows - 1)) {
-				fclose(level_file);
-				return 3;
-			}
-			break;
-
-		default:
-			fclose(level_file);
-			return 3;
-	}
-
-	// Scan the starting position of Theseus on the board from the file into memory
-	if (fscanf(level_file, " %d %d ", &board->theseus.row, &board->theseus.col) != 2) {
-		fclose(level_file);
-		return 4;
-	}
-	if (board->theseus.row < 0 || board->theseus.row >= board->size.num_rows
-	    || board->theseus.col < 0 || board->theseus.col >= board->size.num_cols) {
-		fclose(level_file);
-		return 4;
-	}
-
-	// Scan the starting position of the Minotaur on the board from the file into memory
-	if (fscanf(level_file, " %d %d ", &board->minotaur.row, &board->minotaur.col) != 2) {
-		fclose(level_file);
-		return 5;
-	}
-	if (board->minotaur.row < 0 || board->minotaur.row >= board->size.num_rows
-	    || board->minotaur.col < 0 || board->minotaur.col >= board->size.num_cols) {
-		fclose(level_file);
-		return 5;
-	}
-	else if (board->minotaur.row == board->theseus.row && board->minotaur.col == board->theseus.col) {
-		fclose(level_file);
-		return 5;
-	}
-
-	// Start a linked-list of Walls and check for invalid data
-	int grab_val;
-	if ((grab_val = grab_wall(level_file, &board->walls, board->size.num_rows, board->size.num_cols)) == 2) {
-		board->walls->next = NULL;
-		free_walls(board->walls);
-		board->walls = NULL;
-
-		fclose(level_file);
-		return 6;
-	}
-	board->walls->next = NULL;
-
-	if (grab_val == 1) {
-		free_walls(board->walls);
-		board->walls = NULL;
-
-		fclose(level_file);
-		return 0;
-	}
-
-	// Scan the rest of the walls from the file into the linked-list
-	cell_rel *tracker = board->walls;
-	while (true) {
-		if ((grab_val = grab_wall(level_file, &tracker, board->size.num_rows, board->size.num_cols)) == 2) {
-			free_walls(board->walls);
-			board->walls = NULL;
-
-			fclose(level_file);
-			return 6;
 		}
-		else if (grab_val == 1) {
-			free(tracker->next);
-			tracker->next = NULL;
-			break;
-		}
-
-		tracker = tracker->next;
 	}
 	fclose(level_file);
 
@@ -167,7 +78,7 @@ int read_level_file(const char *file_path, struct stats *board) {
  *	1 - End of file (EOF) was reached -- no more specified "walls".
  *	2 - Invalid data was encountered.
  */
-int grab_wall(FILE *infile, cell_rel **last_wall, int nrows, int ncols) {
+int grab_wall(FILE *infile, cell_rel **last_wall, short nrows, short ncols) {
 	int verdict;
 
 	// Check if current wall will be beginning of linked-list
@@ -178,7 +89,7 @@ int grab_wall(FILE *infile, cell_rel **last_wall, int nrows, int ncols) {
 	else (*last_wall)->next = malloc(sizeof(cell_rel));
 	
 	// Scan the data from the given file into the new cell_rel structure
-	if ((verdict = fscanf(infile, " %d %d %d ", &(*last_wall)->next->relation.row, &(*last_wall)->next->relation.col, &(*last_wall)->next->location)) == EOF) return 1;
+	if ((verdict = fscanf(infile, " %hd %hd %hd ", &(*last_wall)->next->relation.row, &(*last_wall)->next->relation.col, &(*last_wall)->next->location)) == EOF) return 1;
 
 	// Check that all scanned data is valid
 	else if (verdict != 3) return 2;
@@ -195,16 +106,15 @@ int grab_wall(FILE *infile, cell_rel **last_wall, int nrows, int ncols) {
  * Free the memory of a cell_rel structure and all its children.
  */
 void free_walls(cell_rel *cur_wall) {
-	
-	// Base case: cur_wall is NULL (end of linked-list reached)
-	if (cur_wall == NULL) return;
+	cell_rel *temp;
 
-	// Keep going through linked-list until end is reached
-	else if (cur_wall->next != NULL)
-		free_walls(cur_wall->next);
+	// Navigate through linked-list, freeing all memory
+	while (cur_wall) {
+		temp = cur_wall->next;
 
-	cur_wall->next = NULL;
-	free(cur_wall);
+		free(cur_wall);
+		cur_wall = temp;
+	}
 
 	return;
 }

@@ -129,7 +129,7 @@ int play_game(const char *file_path, bool last_level) {
 		// Determine which key the user pressed
 		switch (key) {
 			case KEY_LEFT:
-				if ((theseus_move_result = move_theseus(&board_stats, wins, exit_win, &theseus_win_pair, M_LEFT)) == 1)
+				if ((theseus_move_result = move_theseus(&board_stats, wins, exit_win, &theseus_win_pair, LEFT)) == 1)
 					move_made = true;
 
 				else if (theseus_move_result == 2) escaped = true;
@@ -138,7 +138,7 @@ int play_game(const char *file_path, bool last_level) {
 				break;
 
 			case KEY_RIGHT:
-				if ((theseus_move_result = move_theseus(&board_stats, wins, exit_win, &theseus_win_pair, M_RIGHT)) == 1)
+				if ((theseus_move_result = move_theseus(&board_stats, wins, exit_win, &theseus_win_pair, RIGHT)) == 1)
 					move_made = true;
 
 				else if (theseus_move_result == 2) escaped = true;
@@ -147,7 +147,7 @@ int play_game(const char *file_path, bool last_level) {
 				break;
 
 			case KEY_UP:
-				if ((theseus_move_result = move_theseus(&board_stats, wins, exit_win, &theseus_win_pair, M_UP)) == 1)
+				if ((theseus_move_result = move_theseus(&board_stats, wins, exit_win, &theseus_win_pair, UP)) == 1)
 					move_made = true;
 
 				else if (theseus_move_result == 2) escaped = true;
@@ -156,7 +156,7 @@ int play_game(const char *file_path, bool last_level) {
 				break;
 
 			case KEY_DOWN:
-				if ((theseus_move_result = move_theseus(&board_stats, wins, exit_win, &theseus_win_pair, M_DOWN)) == 1)
+				if ((theseus_move_result = move_theseus(&board_stats, wins, exit_win, &theseus_win_pair, DOWN)) == 1)
 					move_made = true;
 
 				else if (theseus_move_result == 2) escaped = true;

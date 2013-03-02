@@ -2,7 +2,7 @@
 #include "movement.h"
 
 // An array of numbers with which to build and manipulate bit_masks for valid moves on the board
-const int moves[NUM_MOVES] = {1, 2, 4, 8};
+const short moves[NUM_MOVES] = {1, 2, 4, 8};
 
 /**
  * Take in an array of board_square structures and a stats structure, holding
@@ -19,23 +19,23 @@ void set_moves(struct stats *board, board_square *win_grid) {
 	// Turn off moves that go off the board
 	for(int i = 0; i < board->size.num_rows; i++) {
 		if (i == 0 || i == (board->size.num_rows - 1)) {
-			int bit_index = (i == 0) ? M_UP : M_DOWN;
+			int bit_index = (i == 0) ? UP : DOWN;
 			
 			for(int j = 0; j < board->size.num_cols; j++) {
 				win_grid[(i * board->size.num_cols) + j].move_mask &= ~(moves[bit_index]);
 				
 				// Turn off two bits (moves) of move_mask for corners of the board
 				if (j == 0 || j == (board->size.num_cols - 1)) {
-					int bit_index_corner = (j == 0) ? M_LEFT : M_RIGHT;
+					int bit_index_corner = (j == 0) ? LEFT : RIGHT;
 					win_grid[(i * board->size.num_cols) + j].move_mask &= ~(moves[bit_index_corner]);
 				}
 			}
 		}
 		else {
-			int bit_index = M_LEFT;
+			int bit_index = LEFT;
 			for(int j = 0; j < board->size.num_cols; j += (board->size.num_cols - 1)) {
 				win_grid[(i * board->size.num_cols) + j].move_mask &= ~(moves[bit_index]);
-				bit_index = M_RIGHT;
+				bit_index = RIGHT;
 			}
 		}
 	}
@@ -45,24 +45,24 @@ void set_moves(struct stats *board, board_square *win_grid) {
 		win_grid[(temp->relation.row * board->size.num_cols) + temp->relation.col].move_mask &= ~(moves[temp->location]);
 		
 		switch (temp->location) {
-			case M_LEFT:
+			case LEFT:
 				if (temp->relation.col > 0)
-					win_grid[(temp->relation.row * board->size.num_cols) + temp->relation.col - 1].move_mask &= ~(moves[M_RIGHT]);
+					win_grid[(temp->relation.row * board->size.num_cols) + temp->relation.col - 1].move_mask &= ~(moves[RIGHT]);
 				break;
 
-			case M_RIGHT:
+			case RIGHT:
 				if (temp->relation.col < (board->size.num_cols - 1))
-					win_grid[(temp->relation.row * board->size.num_cols) + temp->relation.col + 1].move_mask &= ~(moves[M_LEFT]);
+					win_grid[(temp->relation.row * board->size.num_cols) + temp->relation.col + 1].move_mask &= ~(moves[LEFT]);
 				break;
 
-			case M_UP:
+			case UP:
 				if (temp->relation.row > 0)
-					win_grid[((temp->relation.row - 1) * board->size.num_cols) + temp->relation.col].move_mask &= ~(moves[M_DOWN]);
+					win_grid[((temp->relation.row - 1) * board->size.num_cols) + temp->relation.col].move_mask &= ~(moves[DOWN]);
 				break;
 
-			case M_DOWN:
+			case DOWN:
 				if (temp->relation.row < (board->size.num_rows - 1))
-					win_grid[((temp->relation.row + 1) * board->size.num_cols) + temp->relation.col].move_mask &= ~(moves[M_UP]);
+					win_grid[((temp->relation.row + 1) * board->size.num_cols) + temp->relation.col].move_mask &= ~(moves[UP]);
 				break;
 		}
 	}
@@ -91,7 +91,7 @@ void set_moves(struct stats *board, board_square *win_grid) {
  *	2 - A move was made to the exit WINDOW.
  *	3 - A move was made to a square occupied by the Minotaur (display image not copied over).
  */
-int move_theseus(struct stats *board, board_square *win_grid, WINDOW *exit, short *win_pair, int move) {
+int move_theseus(struct stats *board, board_square *win_grid, WINDOW *exit, short *win_pair, short move) {
 	int theseus_pos = (board->theseus.row * board->size.num_cols) + board->theseus.col;
 	int minotaur_pos = (board->minotaur.row * board->size.num_cols) + board->minotaur.col;
 	int exit_pos = (board->exit.relation.row * board->size.num_cols) + board->exit.relation.col;
@@ -112,22 +112,22 @@ int move_theseus(struct stats *board, board_square *win_grid, WINDOW *exit, shor
 
 	// Update the position of Theseus based on the move chosen
 	switch (move) {
-		case M_LEFT:
+		case LEFT:
 			board->theseus.col--;
 			theseus_pos--;
 			break;
 
-		case M_RIGHT:
+		case RIGHT:
 			board->theseus.col++;
 			theseus_pos++;
 			break;
 
-		case M_UP:
+		case UP:
 			board->theseus.row--;
 			theseus_pos -= board->size.num_cols;
 			break;
 
-		case M_DOWN:
+		case DOWN:
 			board->theseus.row++;
 			theseus_pos += board->size.num_cols;
 			break;
@@ -174,7 +174,7 @@ int move_minotaur(struct stats *board, board_square *win_grid, short *win_pair) 
 
 			// Don't move unless toward Theseus
 			switch (i) {
-				case M_LEFT:
+				case LEFT:
 					if (board->minotaur.col > board->theseus.col) {
 						win_draw_image(win_grid[minotaur_pos].win, eraser, ERASER_SIZE, *win_pair, *win_pair);
 
@@ -194,7 +194,7 @@ int move_minotaur(struct stats *board, board_square *win_grid, short *win_pair) 
 					}
 					break;
 
-				case M_RIGHT:
+				case RIGHT:
 					if (board->minotaur.col < board->theseus.col) {
 						win_draw_image(win_grid[minotaur_pos].win, eraser, ERASER_SIZE, *win_pair, *win_pair);
 
@@ -214,7 +214,7 @@ int move_minotaur(struct stats *board, board_square *win_grid, short *win_pair) 
 					}
 					break;
 
-				case M_UP:
+				case UP:
 					if (board->minotaur.row > board->theseus.row) {
 						win_draw_image(win_grid[minotaur_pos].win, eraser, ERASER_SIZE, *win_pair, *win_pair);
 
@@ -234,7 +234,7 @@ int move_minotaur(struct stats *board, board_square *win_grid, short *win_pair) 
 					}
 					break;
 
-				case M_DOWN:
+				case DOWN:
 					if (board->minotaur.row < board->theseus.row) {
 						win_draw_image(win_grid[minotaur_pos].win, eraser, ERASER_SIZE, *win_pair, *win_pair);
 

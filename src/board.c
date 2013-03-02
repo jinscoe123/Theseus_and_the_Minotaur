@@ -40,7 +40,7 @@ const char *eraser[ERASER_SIZE] = {
  * 'win_height' specifies the height for each WINDOW.
  * 'win_width' specifies the width for each WINDOW.
  */
-void win_layout(board_square *win_grid, int rows, int cols, int win_height, int win_width) {
+void win_layout(board_square *win_grid, short rows, short cols, short win_height, short win_width) {
 	int cur_pair = PAIR_1;
 
 	// Nested 'for' loops to iterate through board_square structures to initialize
@@ -51,7 +51,7 @@ void win_layout(board_square *win_grid, int rows, int cols, int win_height, int 
 			win_grid[(i * cols) + j].win = newwin(win_height, win_width, (LINES - ((rows - (2 * i)) * win_height)) / 2, (COLS - ((cols - (2 * j)) * win_width)) / 2);
 			wbkgd(win_grid[(i * cols) + j].win, COLOR_PAIR(cur_pair));
 
-			win_grid[(i * cols) + j].move_mask = (moves[M_LEFT] | moves[M_RIGHT] | moves[M_UP] | moves[M_DOWN]);	/* Set default of move_mask element (all moves valid) */
+			win_grid[(i * cols) + j].move_mask = (moves[LEFT] | moves[RIGHT] | moves[UP] | moves[DOWN]);	/* Set default of move_mask element (all moves valid) */
 
 			wnoutrefresh(win_grid[(i * cols) + j].win);		/* Update virtual screen only (causes only one burst of output -- when finished) */
 			
@@ -78,19 +78,19 @@ void win_layout(board_square *win_grid, int rows, int cols, int win_height, int 
  *	2 - Wall is on upper side of WINDOW.
  *	3 - Wall is on lower side of WINDOW.
  */
-void draw_wall(WINDOW *win, int placement) {
+void draw_wall(WINDOW *win, short placement) {
 	int max_y, max_x, y_val, x_val;
 	getmaxyx(win, max_y, max_x);	    /* Get the maximum coordinates of the current WINDOW */
 
 	// Perform necessary loop based on specified placement
-	if (placement == M_LEFT || placement == M_RIGHT) {
-		x_val = (placement == M_LEFT) ? 0 : max_x - 1;
+	if (placement == LEFT || placement == RIGHT) {
+		x_val = (placement == LEFT) ? 0 : max_x - 1;
 
 		for(int i = 0; i < max_y; i++)
 			mvwaddch(win, i, x_val, ' ' | A_REVERSE);
 	}
-	else if (placement == M_UP || placement == M_DOWN) {
-		y_val = (placement == M_UP) ? 0 : max_y - 1;
+	else if (placement == UP || placement == DOWN) {
+		y_val = (placement == UP) ? 0 : max_y - 1;
 
 		for(int i = 0; i < max_x; i++)
 			mvwaddch(win, y_val, i, ' ' | A_REVERSE);
@@ -118,7 +118,7 @@ void draw_wall(WINDOW *win, int placement) {
  * 'pair' specifies which color pair to format the image in.
  * 'win_pair' is the color pair for the WINDOW (used to find the background color).
  */
-void win_draw_image(WINDOW *win, const char **image, int img_height, short pair, short win_pair) {
+void win_draw_image(WINDOW *win, const char **image, short img_height, short pair, short win_pair) {
 	int max_y, max_x, start_y, end_y, start_x;
 
 	// Adjust background color for Theseus and Minotaur pairs
@@ -171,7 +171,7 @@ void win_draw_image(WINDOW *win, const char **image, int img_height, short pair,
  *	2 - Above the neighboring WINDOW.
  *	3 - Below the neighboring WINDOW.
  */
-WINDOW *place_win(WINDOW *neighbor, int placement, int win_height, int win_width) {
+WINDOW *place_win(WINDOW *neighbor, short placement, short win_height, short win_width) {
 	int start_y, start_x, max_y, max_x;
 	int new_start_y, new_start_x;
 	short win_pair;
@@ -183,22 +183,22 @@ WINDOW *place_win(WINDOW *neighbor, int placement, int win_height, int win_width
 
 	// Determine start coordinates of new WINDOW based on inputted relation (left, right, up, down)
 	switch (placement) {
-		case M_LEFT:
+		case LEFT:
 			new_start_y = start_y;
 			new_start_x = start_x - win_width;
 			break;
 
-		case M_RIGHT:
+		case RIGHT:
 			new_start_y = start_y;
 			new_start_x = start_x + max_x;
 			break;
 
-		case M_UP:
+		case UP:
 			new_start_y = start_y - win_height;
 			new_start_x = start_x;
 			break;
 
-		case M_DOWN:
+		case DOWN:
 			new_start_y = start_y + max_y;
 			new_start_x = start_x;
 			break;

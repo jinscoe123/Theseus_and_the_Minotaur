@@ -12,21 +12,21 @@
 
 // Structure to hold dimensions of a board
 struct dimensions {
-	int num_rows;
-	int num_cols;
+	short num_rows;
+	short num_cols;
 };
 
 // Structure to hold location of a square on the board
 typedef struct {
-	int row;
-	int col;
+	short row;
+	short col;
 }
 cell_pos;
 
 // Structure to hold a cell_pos structure and a relative location to that position
 typedef struct cell_rel {
 	cell_pos relation;
-	int location;
+	short location;
 	struct cell_rel *next;
 }
 cell_rel;
@@ -60,6 +60,7 @@ struct stats {
  *      4 - Invalid starting position for Theseus was scanned.
  *      5 - Invalid starting position for Minotaur was scanned.
  *      6 - Invalid relative position of a "wall" was scanned.
+ *	7 - Unknown function exited with return value of 1.
  */
 int read_level_file(const char *file_path, struct stats *board);
 
@@ -79,7 +80,7 @@ int read_level_file(const char *file_path, struct stats *board);
  *      1 - End of file (EOF) was reached -- no more specified "walls".
  *      2 - Invalid data was encountered.
  */
-int grab_wall(FILE *infile, cell_rel **last_wall, int nrows, int ncols);
+int grab_wall(FILE *infile, cell_rel **last_wall, short nrows, short ncols);
 
 /**
  * Free the memory of a cell_rel structure and all its children.

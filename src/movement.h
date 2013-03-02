@@ -10,13 +10,17 @@
 
 #define NUM_MOVES 4
 
-#define M_LEFT 0
-#define M_RIGHT 1
-#define M_UP 2
-#define M_DOWN 3
+// Enumerated values representing moves on a board
+enum {
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN
+}
+moves_t;
 
 // An array of numbers with which to build and manipulate bit_masks for valid moves on the board
-extern const int moves[];
+extern const short moves[];
 
 /**
  * Take in an array of board_square structures and a stats structure, holding
@@ -50,7 +54,7 @@ void set_moves(struct stats *board, board_square *win_grid);
  *      2 - A move was made to the exit WINDOW.
  *      3 - A move was made to a square occupied by the Minotaur (display image not copied over).
  */
-int move_theseus(struct stats *board, board_square *win_grid, WINDOW *exit, short *win_pair, int move);
+int move_theseus(struct stats *board, board_square *win_grid, WINDOW *exit, short *win_pair, short move);
 
 /**
  * Given statistics of the board and possible moves for each of the board's squares, check
